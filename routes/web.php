@@ -59,6 +59,9 @@ Route::middleware(['auth', 'verified', 'role:dosen'])->prefix('dosen')->name('do
 Route::middleware(['auth', 'verified', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
     Route::get('/dashboard', [MahasiswaController::class, 'dashboard'])->name('dashboard');
     Route::get('/search', [SearchController::class, 'index'])->name('search');
+    // --- TAMBAHKAN DUA BARIS INI ---
+    Route::get('/thesis/create', [MahasiswaController::class, 'create'])->name('thesis.create');
+    Route::post('/thesis/store', [MahasiswaController::class, 'store'])->name('thesis.store');
     Route::get('/thesis/{thesis}', [MahasiswaController::class, 'show'])->name('thesis.show');
 });
 

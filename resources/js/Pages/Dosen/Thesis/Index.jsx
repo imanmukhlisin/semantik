@@ -232,9 +232,9 @@ export default function ThesisIndex({ theses, filters, categories, years }) {
                                         <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-pink-700 uppercase tracking-wider">
                                             Kategori/Tahun
                                         </th>
-                                        <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-pink-700 uppercase tracking-wider">
+                                        {/* <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-pink-700 uppercase tracking-wider">
                                             Downloads
-                                        </th>
+                                        </th> */}
                                         <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-pink-700 uppercase tracking-wider w-40">
                                             Aksi
                                         </th>

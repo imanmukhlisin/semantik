@@ -48,6 +48,20 @@ export default function MahasiswaDashboard({ recent_thesis, popular_thesis, cate
                                     </svg>
                                 </div>
                             </Link>
+                            
+                            {/* --- TAMBAHAN: Tombol Upload di Hero --- */}
+                            <div className="mt-6">
+                                <Link 
+                                    href={route('mahasiswa.thesis.create')} 
+                                    className="inline-flex items-center px-6 py-3 bg-white text-pink-600 rounded-full font-bold shadow-lg hover:bg-pink-50 transition-all duration-300"
+                                >
+                                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Upload Skripsi Anda
+                                </Link>
+                            </div>
+                            {/* -------------------------------------- */}
                         </div>
                     </div>
                 </div>
@@ -96,9 +110,16 @@ export default function MahasiswaDashboard({ recent_thesis, popular_thesis, cate
                             <h2 className="text-2xl font-bold text-gray-800">
                                 Skripsi Terbaru
                             </h2>
-                            <Link href={route('mahasiswa.search')} className="text-pink-600 hover:text-pink-700 font-medium">
-                                Lihat Semua →
-                            </Link>
+                            <div className="flex items-center gap-4">
+                                {/* --- TAMBAHAN: Link Upload Kecil --- */}
+                                <Link href={route('mahasiswa.thesis.create')} className="hidden md:block text-pink-600 font-semibold border-b-2 border-transparent hover:border-pink-600 transition-all">
+                                    + Upload Baru
+                                </Link>
+                                {/* ----------------------------------- */}
+                                <Link href={route('mahasiswa.search')} className="text-pink-600 hover:text-pink-700 font-medium">
+                                    Lihat Semua →
+                                </Link>
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
