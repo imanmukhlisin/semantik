@@ -13,18 +13,18 @@ use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class RegisteredUserController extends Controller
+class RegisteredDosenController extends Controller
 {
     /**
-     * Display the registration view.
+     * Display the registration view for dosen.
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        return Inertia::render('Auth/RegisterDosen');
     }
 
     /**
-     * Handle an incoming registration request.
+     * Handle an incoming registration request for dosen.
      *
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -40,7 +40,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'mahasiswa', // Set default role
+            'role' => 'dosen',
         ]);
 
         event(new Registered($user));

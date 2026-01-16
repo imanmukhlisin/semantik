@@ -119,7 +119,10 @@ export default function Welcome({ auth }) {
 
                         <div className="flex flex-col sm:flex-row gap-4">
                             <Link
-                                href={auth.user ? route('dashboard') : route('login')}
+                                href={auth.user 
+                                    ? (auth.user.role === 'admin' ? route('admin.dashboard') : auth.user.role === 'dosen' ? route('dosen.dashboard') : route('mahasiswa.dashboard'))
+                                    : route('login')
+                                }
                                 className="px-8 py-4 bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-pink-600/20 hover:scale-105 hover:shadow-2xl hover:shadow-pink-600/30 active:scale-95 transition-all text-center"
                             >
                                 {auth.user ? 'Ke Dashboard' : 'Mulai Sekarang'}
@@ -262,8 +265,8 @@ export default function Welcome({ auth }) {
                             <h6 className="font-bold text-slate-900 uppercase tracking-widest mb-6 text-xs">Platform</h6>
                             <ul className="space-y-4">
                                 <li><Link href={route('login')} className="text-sm font-bold text-slate-500 hover:text-pink-600 transition-colors">Login Admin</Link></li>
-                                <li><Link href={route('login')} className="text-sm font-bold text-slate-500 hover:text-pink-600 transition-colors">Portal Dosen</Link></li>
                                 <li><Link href={route('register')} className="text-sm font-bold text-slate-500 hover:text-pink-600 transition-colors">Daftar Mahasiswa</Link></li>
+                                <li><Link href={route('dosen.register')} className="text-sm font-bold text-slate-500 hover:text-pink-600 transition-colors">Daftar Dosen</Link></li>
                             </ul>
                         </div>
                     </div>
