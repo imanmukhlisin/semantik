@@ -41,6 +41,22 @@ export default function DosenDashboard({ stats }) {
                                 </div>
                             </div>
                         </div>
+
+                        <div className="stat-card">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600 mb-1">
+                                        Total Download
+                                    </p>
+                                    <p className="text-3xl font-bold text-gradient-pink">
+                                        {stats.total_downloads}
+                                    </p>
+                                </div>
+                                <div className="icon-container bg-gradient-to-br from-pink-400 to-pink-500">
+                                    <span className="text-2xl">📥</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Quick Actions */}
@@ -88,6 +104,9 @@ export default function DosenDashboard({ stats }) {
                                                 <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-pink-700 uppercase tracking-wider">
                                                     Kategori/Tahun
                                                 </th>
+                                                {/* <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-pink-700 uppercase tracking-wider">
+                                                    Downloads
+                                                </th> */}
                                                 <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-pink-700 uppercase tracking-wider w-40">
                                                     Aksi
                                                 </th>
@@ -120,6 +139,14 @@ export default function DosenDashboard({ stats }) {
                                                                 </svg>
                                                                 {thesis.year}
                                                             </span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <div className="flex items-center justify-center text-gray-600 font-medium">
+                                                            <svg className="w-5 h-5 mr-1 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                            </svg>
+                                                            {thesis.download_count}
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-center">

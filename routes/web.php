@@ -1,77 +1,108 @@
-﻿<?php
+<?php
 
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ThesisController as AdminThesisController;
+use App\Http\Controllers\Dosen\DosenController;
+use App\Http\Controllers\Dosen\ThesisController as DosenThesisController;
+use App\Http\Controllers\Mahasiswa\MahasiswaController;
+use App\Http\Controllers\Mahasiswa\SearchController;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin;
-use App\Http\Controllers\Mahasiswa;
-use App\Http\Controllers\Dosen;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
-// Landing and Public Routes
+
 Route::get('/', function () {
-    return inertia('Welcome');
-})->name('welcome');
+    // Redirect authenticated users to their dashboard
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+    
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+});
 
-// ✅ ini WAJIB biar route login/logout/register ada
-require __DIR__.'/auth.php';
-require __DIR__.'/profile.php';
+// Dashboard redirect based on role
+Route::get('/dashboard', function () {
+    $user = auth()->user();
+    
+    return match ($user->role) {
+        'admin' => redirect()->route('admin.dashboard'),
+        'dosen' => redirect()->route('dosen.thesis.index'),
+        'mahasiswa' => redirect()->route('mahasiswa.dashboard'),
+        default => redirect()->route('login'),
+    };
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-// Shared/Public Thesis Routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/thesis/{id}/download', [Mahasiswa\ThesisController::class, 'download'])->name('thesis.download');
-    Route::get('/thesis/{id}/preview', [Mahasiswa\ThesisController::class, 'preview'])->name('thesis.preview');
-    Route::get('/thesis/{id}/letter/download', [Mahasiswa\ThesisController::class, 'downloadLetter'])->name('thesis.letter.download');
+// Admin Routes
+Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::resource('users', UserController::class);
+    Route::resource('thesis', AdminThesisController::class);
+});
+
+// Dosen Routes
+Route::middleware(['auth', 'verified', 'role:dosen'])->prefix('dosen')->name('dosen.')->group(function () {
+    Route::get('/dashboard', function () {
+        return redirect()->route('dosen.thesis.index');
+    })->name('dashboard');
+    Route::resource('thesis', DosenThesisController::class)->except(['create', 'store']);
 });
 
 // Mahasiswa Routes
-Route::middleware(['auth', 'role:mahasiswa'])
-    ->prefix('mahasiswa')
-    ->name('mahasiswa.')
-    ->group(function () {
-        Route::get('/dashboard', [Mahasiswa\ThesisController::class, 'dashboard'])->name('dashboard');
-        Route::get('/search', [Mahasiswa\ThesisController::class, 'search'])->name('search');
-        Route::get('/thesis/create', [Mahasiswa\ThesisController::class, 'create'])->name('thesis.create');
-        Route::post('/thesis', [Mahasiswa\ThesisController::class, 'store'])->name('thesis.store');
-        Route::get('/thesis/{id}', [Mahasiswa\ThesisController::class, 'show'])->name('thesis.show');
-        Route::post('/thesis/{id}/clearance', [Mahasiswa\ThesisController::class, 'storeClearance'])->name('thesis.clearance.store');
-    });
+Route::middleware(['auth', 'verified', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
+    Route::get('/dashboard', [MahasiswaController::class, 'dashboard'])->name('dashboard');
+    Route::get('/search', [SearchController::class, 'index'])->name('search');
+    // --- TAMBAHKAN DUA BARIS INI ---
+    Route::get('/thesis/create', [MahasiswaController::class, 'create'])->name('thesis.create');
+    Route::post('/thesis/store', [MahasiswaController::class, 'store'])->name('thesis.store');
+    Route::get('/thesis/{thesis}', [MahasiswaController::class, 'show'])->name('thesis.show');
+});
 
-// Admin Routes
-Route::middleware(['auth', 'role:admin'])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-        Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
+// Public PDF Routes (accessible by all authenticated users)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/thesis/{thesis}/download', function ($id) {
+        $thesis = \App\Models\Thesis::findOrFail($id);
         
-        // Users Management
-        Route::get('/users', [Admin\UserController::class, 'index'])->name('users.index');
-        Route::get('/users/create', [Admin\UserController::class, 'create'])->name('users.create');
-        Route::post('/users', [Admin\UserController::class, 'store'])->name('users.store');
-        Route::get('/users/{user}', [Admin\UserController::class, 'show'])->name('users.show');
-        Route::get('/users/{user}/edit', [Admin\UserController::class, 'edit'])->name('users.edit');
-        Route::put('/users/{user}', [Admin\UserController::class, 'update'])->name('users.update');
-        Route::delete('/users/{user}', [Admin\UserController::class, 'destroy'])->name('users.destroy');
+        if (!$thesis->file_path || !\Storage::disk('public')->exists($thesis->file_path)) {
+            abort(404, 'File tidak ditemukan');
+        }
+        
+        // Increment download count
+        $thesis->incrementDownloads();
+        
+        $filename = \Illuminate\Support\Str::slug($thesis->title) . '.pdf';
+        
+        return \Storage::disk('public')->download($thesis->file_path, $filename, [
+            'Content-Type' => 'application/pdf',
+        ]);
+    })->name('thesis.download');
+    
+    Route::get('/thesis/{thesis}/preview', function ($id) {
+        $thesis = \App\Models\Thesis::findOrFail($id);
+        
+        if (!$thesis->file_path || !\Storage::disk('public')->exists($thesis->file_path)) {
+            abort(404, 'File tidak ditemukan');
+        }
+        
+        return \Storage::disk('public')->response($thesis->file_path, null, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . \Illuminate\Support\Str::slug($thesis->title) . '.pdf"',
+        ]);
+    })->name('thesis.preview');
+});
 
-        // Thesis Management
-        Route::get('/thesis', [Admin\ThesisController::class, 'index'])->name('thesis.index');
-        Route::get('/thesis/create', [Admin\ThesisController::class, 'create'])->name('thesis.create');
-        Route::post('/thesis', [Admin\ThesisController::class, 'store'])->name('thesis.store');
-        Route::get('/thesis/{id}', [Admin\ThesisController::class, 'show'])->name('thesis.show');
-        Route::get('/thesis/{id}/edit', [Admin\ThesisController::class, 'edit'])->name('thesis.edit');
-        Route::put('/thesis/{id}', [Admin\ThesisController::class, 'update'])->name('thesis.update');
-        Route::delete('/thesis/{id}', [Admin\ThesisController::class, 'destroy'])->name('thesis.destroy');
-        Route::post('/thesis/{id}/clearance/approve', [Admin\ThesisController::class, 'approveClearance'])->name('thesis.clearance.approve');
-        Route::post('/thesis/{id}/clearance/reject', [Admin\ThesisController::class, 'rejectClearance'])->name('thesis.clearance.reject');
-        Route::post('/thesis/{id}/letter/generate', [Admin\ThesisController::class, 'generateLetter'])->name('thesis.letter.generate');
-    });
+// Profile Routes (all authenticated users)
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-// Dosen Routes
-Route::middleware(['auth', 'role:dosen'])
-    ->prefix('dosen')
-    ->name('dosen.')
-    ->group(function () {
-        Route::get('/dashboard', [Dosen\DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/thesis', [Dosen\ThesisController::class, 'index'])->name('thesis.index');
-        Route::get('/thesis/{id}', [Dosen\ThesisController::class, 'show'])->name('thesis.show');
-        Route::get('/thesis/{thesis}/edit', [Dosen\ThesisController::class, 'edit'])->name('thesis.edit');
-        Route::put('/thesis/{thesis}', [Dosen\ThesisController::class, 'update'])->name('thesis.update');
-        Route::delete('/thesis/{thesis}', [Dosen\ThesisController::class, 'destroy'])->name('thesis.destroy');
-    });
+require __DIR__.'/auth.php';

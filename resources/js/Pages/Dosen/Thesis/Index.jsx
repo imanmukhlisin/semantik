@@ -215,6 +215,7 @@ export default function ThesisIndex({ theses, filters, categories, years }) {
                                 <option value="oldest">Terlama</option>
                                 <option value="title_asc">Judul A-Z</option>
                                 <option value="title_desc">Judul Z-A</option>
+                                <option value="most_downloaded">Paling Banyak Diunduh</option>
                             </select>
                         </div>
                     </div>
@@ -231,7 +232,9 @@ export default function ThesisIndex({ theses, filters, categories, years }) {
                                         <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-pink-700 uppercase tracking-wider">
                                             Kategori/Tahun
                                         </th>
-
+                                        {/* <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-pink-700 uppercase tracking-wider">
+                                            Downloads
+                                        </th> */}
                                         <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-pink-700 uppercase tracking-wider w-40">
                                             Aksi
                                         </th>
@@ -273,7 +276,14 @@ export default function ThesisIndex({ theses, filters, categories, years }) {
                                                         </span>
                                                     </div>
                                                 </td>
-
+                                                <td className="px-6 py-4 text-center">
+                                                    <div className="flex items-center justify-center text-gray-600 font-medium">
+                                                        <svg className="w-5 h-5 mr-1 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                        </svg>
+                                                        {thesis.download_count}
+                                                    </div>
+                                                </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <div className="flex justify-center items-center gap-2">
                                                         <Link

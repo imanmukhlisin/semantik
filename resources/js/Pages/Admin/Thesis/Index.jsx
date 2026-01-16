@@ -244,9 +244,9 @@ export default function ThesisIndex({ theses, filters, categories, years }) {
                                         <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-pink-700 uppercase tracking-wider">
                                             Kategori/Tahun
                                         </th>
-                                        <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-pink-700 uppercase tracking-wider">
-                                            Clearance Status
-                                        </th>
+                                        {/* <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-pink-700 uppercase tracking-wider">
+                                            Downloads
+                                        </th> */}
                                         <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-pink-700 uppercase tracking-wider w-48">
                                             Aksi
                                         </th>
@@ -287,116 +287,14 @@ export default function ThesisIndex({ theses, filters, categories, years }) {
                                                         </span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 text-center">
-                                                    <div className="flex flex-col items-center gap-2">
-                                                        {!thesis.clearance ? (
-                                                            <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] font-bold uppercase">
-                                                                Belum Upload
-                                                            </span>
-                                                        ) : (
-                                                            <>
-                                                                {thesis.clearance.status === 'pending' && (
-                                                                    <div className="flex flex-col items-center gap-1">
-                                                                        <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-[10px] font-bold uppercase">
-                                                                            Pending
-                                                                        </span>
-                                                                        <div className="flex gap-1 mt-1">
-                                                                            <button
-                                                                                onClick={() => router.post(route('admin.thesis.clearance.approve', thesis.id), {}, {
-                                                                                    onSuccess: () => alert('Skripsi berhasil disetujui (Approved)!')
-                                                                                })}
-                                                                                className="p-1 bg-green-100 text-green-600 rounded hover:bg-green-200 transition-colors"
-                                                                                title="Setujui"
-                                                                            >
-                                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                                                </svg>
-                                                                            </button>
-                                                                            <button
-                                                                                onClick={() => {
-                                                                                    const notes = prompt('Alasan penolakan (opsional):');
-                                                                                    router.post(route('admin.thesis.clearance.reject', thesis.id), { notes }, {
-                                                                                        onSuccess: () => alert('Skripsi telah ditolak (Rejected).')
-                                                                                    });
-                                                                                }}
-                                                                                className="p-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors"
-                                                                                title="Tolak"
-                                                                            >
-                                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                                                </svg>
-                                                                            </button>
-                                                                            <a
-                                                                                href={`/storage/${thesis.clearance.file_path}`}
-                                                                                target="_blank"
-                                                                                className="p-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
-                                                                                title="Lihat Berkas"
-                                                                            >
-                                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                                                </svg>
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                )}
-                                                                {thesis.clearance.status === 'approved' && (
-                                                                    <div className="flex flex-col items-center gap-1">
-                                                                        <div className="flex flex-col items-center">
-                                                                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-bold uppercase">
-                                                                                Approved
-                                                                            </span>
-                                                                            <span className="text-[9px] text-gray-400 italic">
-                                                                                {new Date(thesis.clearance.approved_at).toLocaleDateString()}
-                                                                            </span>
-                                                                        </div>
-
-                                                                        {/* Letter Generation / View */}
-                                                                        {!thesis.letter_number ? (
-                                                                            <button
-                                                                                onClick={() => router.post(route('admin.thesis.letter.generate', thesis.id), {}, {
-                                                                                    onSuccess: () => alert('Surat Bebas Pustaka berhasil diterbitkan!')
-                                                                                })}
-                                                                                className="mt-1 px-2 py-1 bg-pink-100 text-pink-700 rounded text-[10px] font-bold hover:bg-pink-200 transition-colors flex items-center gap-1"
-                                                                                title="Terbitkan Surat Bebas Pustaka"
-                                                                            >
-                                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                                                </svg>
-                                                                                Terbitkan Surat
-                                                                            </button>
-                                                                        ) : (
-                                                                            <a
-                                                                                href={route('thesis.letter.download', thesis.id)}
-                                                                                className="mt-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-[10px] font-bold hover:bg-blue-200 transition-colors flex items-center gap-1"
-                                                                                title="Download Surat"
-                                                                            >
-                                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21l4-4m0 0l4 4m-4-4v12" />
-                                                                                </svg>
-                                                                                Lihat Surat
-                                                                            </a>
-                                                                        )}
-                                                                    </div>
-                                                                )}
-                                                                {thesis.clearance.status === 'rejected' && (
-                                                                    <div className="flex flex-col items-center gap-1">
-                                                                        <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-bold uppercase" title={thesis.clearance.notes}>
-                                                                            Rejected
-                                                                        </span>
-                                                                        <button
-                                                                            onClick={() => router.post(route('admin.thesis.clearance.approve', thesis.id))}
-                                                                            className="text-[10px] text-pink-600 hover:underline"
-                                                                        >
-                                                                            Re-Approve
-                                                                        </button>
-                                                                    </div>
-                                                                )}
-                                                            </>
-                                                        )}
+                                                {/* <td className="px-6 py-4 text-center">
+                                                    <div className="flex items-center justify-center text-gray-600 font-medium">
+                                                        <svg className="w-5 h-5 mr-1 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                        </svg>
+                                                        {thesis.download_count}
                                                     </div>
-                                                </td>
+                                                </td> */}
                                                 <td className="px-6 py-4 text-center">
                                                     <div className="flex justify-center items-center gap-2">
                                                         <Link
