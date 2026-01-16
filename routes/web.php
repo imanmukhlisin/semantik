@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ThesisController as AdminThesisController;
 use App\Http\Controllers\Dosen\DosenController;
@@ -42,16 +42,14 @@ Route::get('/dashboard', function () {
 
 // Admin Routes
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('users', UserController::class);
     Route::resource('thesis', AdminThesisController::class);
 });
 
 // Dosen Routes
 Route::middleware(['auth', 'verified', 'role:dosen'])->prefix('dosen')->name('dosen.')->group(function () {
-    Route::get('/dashboard', function () {
-        return redirect()->route('dosen.thesis.index');
-    })->name('dashboard');
+    Route::get('/dashboard', [DosenController::class, 'dashboard'])->name('dashboard');
     Route::resource('thesis', DosenThesisController::class)->except(['create', 'store']);
 });
 
