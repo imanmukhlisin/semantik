@@ -17,8 +17,8 @@
             "dest": "/public/build/$1"
         },
         {
-            "src": "/(css|js|images|storage)/(.*)",
-            "dest": "/public/$1/$2"
+            "src": "/(.*\\.(png|jpg|jpeg|gif|svg|ico|css|js|woff|woff2|ttf|eot))$",
+            "dest": "/public/$1"
         },
         {
             "src": "/(.*)",
